@@ -11,7 +11,7 @@ const config: PlaywrightTestConfig = {
     use: {
       baseURL: 'https://auth-dev.rosslyn.ai/',
       headless:true,
-      screenshot: 'only-on-failure',
+      screenshot: 'on',
       video: 'retain-on-failure',
   },
 
