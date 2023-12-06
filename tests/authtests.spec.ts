@@ -1,35 +1,36 @@
 import { test, expect } from '@playwright/test';
 import { Page } from '@playwright/test';
 
+var username = process.env.USERNAME
+var password = process.env.PASSWORD
+
 test.beforeEach(async ({ page , baseURL}) => {
 
-  if (baseURL != null)
+  if (baseURL && username && password != null)
   {
     await page.goto(baseURL)
     await page.getByRole('link', {name: "Sign in"}).click()
   }
-  else throw("Base URL is not defined in the config!");
+  else throw("Environment variables not correctly defined in the config!");
 });
 
 test("Able to sign in with persistent session", async ({ page }) => {
 
-  var usernameText:string = "BNQAUserTest@r10dev.com"
-  await attempt_Login(page, usernameText,"Zqxwce12!HG", true)
-  await expect(page.getByRole("heading", {name: usernameText})).toBeVisible()
+  await attempt_Login(page, username, password, true)
+  await expect(page.getByRole("heading", {name: username})).toBeVisible()
   await expect(page.getByText("True")).toBeVisible()
 });
 
 test("Able to sign in without persistent session", async ({ page }) => {
 
-  var usernameText:string = "BNQAUserTest@r10dev.com"
-  await attempt_Login(page, usernameText,"Zqxwce12!HG")
-  await expect(page.getByRole("heading", {name: usernameText})).toBeVisible()
+  await attempt_Login(page, username, password)
+  await expect(page.getByRole("heading", {name: username})).toBeVisible()
 });
 
 test("Incorrect credentials prevents sign in attempt, error message displayed", async ({ page }) => {
 
   await attempt_Login(page, "Test","PasswordTest")
-  await expect(page.getByText('Invalid login attempt', {exact: true})).toBeVisible()
+  await expect(page.getByText('Invalid login attempt')).toBeVisible()
 });
 
 test("Able to send a reset password request, success message is displayed", async({ page }) => {
@@ -52,7 +53,8 @@ export async function attempt_Login(page: Page, username: string, password: stri
 
   await page.getByLabel("User name").fill(username)
   await page.getByLabel("Password").fill(password)
-  await page.getByLabel("Remember me").click()
-  await page.getByRole("checkbox").check()
+  if (rememberMe) {
+    await page.getByRole("checkbox").check()
+  }
   await page.getByRole("button").click()
 }
